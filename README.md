@@ -141,6 +141,17 @@ Add the following to your `podfile`
 pod 'Stylist'
 ```
 
+For this fork's unreleased changes, use:
+
+```ruby
+pod 'Stylist', :git => 'https://github.com/tomasszabo/Stylist.git',
+              :branch => 'modernization/swift-package-manager'
+```
+
+The checked-in `Pods` and `Podfile.lock` are legacy example snapshots, not the
+modernization dependency graph. Run `pod install` before building the legacy
+example workspace; SPM does not use these snapshots.
+
 ### Carthage
 Add the following to your `Cartfile`
 ```sh
