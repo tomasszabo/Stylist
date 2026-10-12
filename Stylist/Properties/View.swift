@@ -27,7 +27,7 @@ extension View {
 
         var objects: [StyleObject] = []
 
-        func add<ViewType, StyleableType: Styleable>(_ name: String, _ styleable: @escaping (ViewType) -> StyleableType?) {
+        func add<ViewType, StyleableType: Styleable>(_ name: String, _ styleable: @escaping @MainActor (ViewType) -> StyleableType?) {
             objects.append(StyleObject(name: name, styleable: styleable))
         }
 
@@ -68,7 +68,7 @@ extension View {
 
         var properties: [StyleProperty] = []
 
-        func add<ViewType, PropertyType>(_ name: String, _ style: @escaping (ViewType, PropertyValue<PropertyType>) -> Void) {
+        func add<ViewType, PropertyType>(_ name: String, _ style: @escaping @MainActor (ViewType, PropertyValue<PropertyType>) -> Void) {
             properties.append(StyleProperty(name: name, style: style))
         }
 

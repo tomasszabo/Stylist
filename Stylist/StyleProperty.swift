@@ -11,10 +11,10 @@ import Foundation
 public struct StyleProperty {
 
     public let name: String
-    let apply: (Any, StylePropertyValue) throws -> Void
+    let apply: @MainActor (Any, StylePropertyValue) throws -> Void
     private let supports: (String, Any) -> Bool
 
-    public init<ViewType, PropertyType>(name: String, style: @escaping (ViewType, PropertyValue<PropertyType>) -> Void) {
+    public init<ViewType, PropertyType>(name: String, style: @escaping @MainActor (ViewType, PropertyValue<PropertyType>) -> Void) {
         self.name = name
         apply = { view, value in
             if let view = view as? ViewType {
@@ -23,7 +23,7 @@ public struct StyleProperty {
                     let propertyValue = PropertyValue(value: parsedValue as! PropertyType, context: value.context)
                     style(view, propertyValue)
                 } else {
-                    throw StylePropertyError(propertyType: PropertyType.self, value: value.value)
+                    throw StylePropertyError(propertyType: PropertyType.self, value: String(describing: value.value))
                 }
             }
         }
@@ -44,5 +44,5 @@ public struct PropertyValue<T: StyleValue> {
 
 struct StylePropertyError: Error {
     let propertyType: Any.Type
-    let value: Any
+    let value: String
 }

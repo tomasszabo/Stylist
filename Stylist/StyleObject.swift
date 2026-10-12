@@ -11,10 +11,10 @@ import Foundation
 public struct StyleObject {
 
     public let name: String
-    let getStyleable: (Any) -> Styleable?
+    let getStyleable: @MainActor (Any) -> Styleable?
     private let supports: (String, Any) -> Bool
 
-    public init<ViewType, StyleableType: Styleable>(name: String, styleable: @escaping (ViewType) -> StyleableType?) {
+    public init<ViewType, StyleableType: Styleable>(name: String, styleable: @escaping @MainActor (ViewType) -> StyleableType?) {
         self.name = name
         getStyleable = { view in
             guard let view = view as? ViewType else { return nil }

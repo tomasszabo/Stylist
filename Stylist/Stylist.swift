@@ -10,6 +10,7 @@ import Foundation
 import UIKit
 import KZFileWatchers
 
+@MainActor
 public class Stylist {
 
     public static let shared = Stylist()
@@ -155,7 +156,7 @@ public class Stylist {
     /// - Returns: The file watcher, which can later be stopped
     /// - Throws: An error is thrown if the file couldn't be watched
     @discardableResult
-    public func watch(url: URL, animateChanges: Bool = true, parsingError: @escaping (ThemeError) -> Void) -> FileWatcherProtocol {
+    public func watch(url: URL, animateChanges: Bool = true, parsingError: @escaping @MainActor (ThemeError) -> Void) -> FileWatcherProtocol {
         let fileWatcher: FileWatcherProtocol
         if url.isFileURL {
             fileWatcher = FileWatcher.Local(path: url.path)
@@ -163,12 +164,11 @@ public class Stylist {
             fileWatcher = FileWatcher.Remote(url: url)
         }
 
-        var hasLoaded = false
+        let state = ThemeWatchState()
         let stylist = self
         do {
             try fileWatcher.start { result in
-                // Remote watchers deliver updates on a background queue.
-                DispatchQueue.main.async {
+                Task { @MainActor in
                     switch result {
                     case .noChanges:
                         break
@@ -176,14 +176,19 @@ public class Stylist {
                         do {
                             let theme = try Theme(data: data)
                             stylist.themes[url.path] = theme
-                            stylist.apply(theme: theme, animateChanges: animateChanges && hasLoaded)
-                            hasLoaded = true
+                            stylist.apply(theme: theme, animateChanges: animateChanges && state.hasLoaded)
+                            state.hasLoaded = true
                         } catch let error as ThemeError {
                             parsingError(error)
                         } catch {
                             print("Could not parse watched theme: \(error)")
                             parsingError(ThemeError.decodingError)
                         }
+                    #if SWIFT_PACKAGE
+                    case let .failed(error):
+                        print("Could not refresh watched theme: \(error)")
+                        parsingError(ThemeError.notFound)
+                    #endif
                     }
                 }
             }
@@ -192,6 +197,11 @@ public class Stylist {
         }
         return fileWatcher
     }
+}
+
+@MainActor
+private final class ThemeWatchState {
+    var hasLoaded = false
 }
 
 struct WeakContainer<T: AnyObject> {

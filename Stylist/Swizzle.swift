@@ -12,7 +12,7 @@ import UIKit
 extension UIView {
 
     class func setupSwizzling() {
-        struct Static {
+        @MainActor struct Static {
             static var swizzled = false
         }
 
@@ -41,7 +41,7 @@ extension UIView {
 extension UIViewController {
 
     class func setupSwizzling() {
-        struct Static {
+        @MainActor struct Static {
             static var swizzled = false
         }
 

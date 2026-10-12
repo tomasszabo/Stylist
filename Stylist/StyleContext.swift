@@ -23,7 +23,7 @@ public struct StyleContext: Equatable {
         self.verticalSizeClass = verticalSizeClass
     }
 
-    func targets(styleable: Any) -> Bool {
+    @MainActor func targets(styleable: Any) -> Bool {
         if let view = styleable as? UIView {
             if horizontalSizeClass != .unspecified,
                 horizontalSizeClass != view.traitCollection.horizontalSizeClass {
@@ -38,7 +38,7 @@ public struct StyleContext: Equatable {
         return isValidDevice
     }
 
-    var isValidDevice: Bool {
+    @MainActor var isValidDevice: Bool {
         return device == .unspecified || device == UIDevice.current.userInterfaceIdiom
     }
 }
