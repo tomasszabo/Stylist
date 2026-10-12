@@ -98,6 +98,16 @@ generated Xcode project, or copied third-party sources are used by SPM.
 
 #### Swift and threading compatibility
 
+| Setting | Value |
+|---|---|
+| Swift language mode | **Swift 5** (`swiftLanguageVersions: [.v5]`) |
+| Minimum SPM tools version | Swift 5.9 |
+| Validated compiler | Swift 6.4, supplied by Xcode 27 |
+| Swift 6 strict-concurrency mode | Not enabled |
+
+The compiler version and language mode are separate: building with a Swift 6
+compiler does not automatically enable Swift 6 language mode.
+
 The package builds with the Swift 6 compiler (validated with Swift 6.4 / Xcode
 27), using **Swift 5 language mode** to preserve the synchronous styling and
 custom-property APIs. This is not a claim of Swift 6 strict-concurrency safety:
