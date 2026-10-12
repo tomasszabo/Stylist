@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import UIKit
 @testable import Stylist
 import XCTest
 import Yams
@@ -125,9 +126,8 @@ class StylistTests: XCTestCase {
 
     func testFilteringSizeClasses() throws {
 
-        let view = UIView()
-        let traitCollection = UITraitCollection(horizontalSizeClass: .compact)
-        TraitViewController.addTraits([traitCollection], to: view)
+        let view = CompactTraitView()
+        XCTAssertEqual(view.traitCollection.horizontalSizeClass, .compact)
 
         let style = try Style(properties: [
             StylePropertyValue(name: "backgroundColor", value: "green", context: PropertyContext(styleContext: .init(horizontalSizeClass: .compact))),
@@ -321,9 +321,65 @@ class StylistTests: XCTestCase {
         XCTAssertEqual(view.backgroundColor, .blue)
     }
 
-    // TODO: test loading files
+    func testLoadJSONThemeFromFile() throws {
+        let url = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString + ".json")
+        defer { try? FileManager.default.removeItem(at: url) }
+        try Data("""
+        {"variables":{"accent":"blue"},"styles":{"primary":{"backgroundColor":"$accent"}}}
+        """.utf8).write(to: url)
+        let stylist = Stylist()
+        try stylist.load(path: url.path)
+        let view = UIView()
+        view.style = "primary"
+        stylist.style(view)
+        XCTAssertEqual(view.backgroundColor, .blue)
+    }
 
-    // TODO: test watching files
+    func testLocalThemeWatcherUpdatesOnMainThread() throws {
+        let url = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString + ".yaml")
+        try Data("styles: { watched: { backgroundColor: blue } }".utf8).write(to: url)
+        defer { try? FileManager.default.removeItem(at: url) }
+        let stylist = Stylist()
+        let updated = expectation(description: "Watched theme applied")
+        let property = StyleProperty(name: "backgroundColor") { (view: UIView, value: PropertyValue<UIColor>) in
+            XCTAssertTrue(Thread.isMainThread)
+            view.backgroundColor = value.value
+            updated.fulfill()
+        }
+        stylist.addProperty(property)
+        let view = UIView()
+        view.style = "watched"
+        stylist.style(view)
+        let watcher = stylist.watch(url: url, animateChanges: false) { error in
+            XCTFail("Unexpected watcher error: \(error)")
+        }
+        defer { try? watcher.stop() }
+        wait(for: [updated], timeout: 5)
+        XCTAssertEqual(view.backgroundColor, .blue)
+    }
+
+    func testWatcherReportsMalformedYAMLOnMainThread() throws {
+        let url = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString + ".yaml")
+        try Data("styles: [".utf8).write(to: url)
+        defer { try? FileManager.default.removeItem(at: url) }
+        let failed = expectation(description: "Invalid watched theme reported")
+        let watcher = Stylist().watch(url: url, animateChanges: false) { error in
+            XCTAssertTrue(Thread.isMainThread)
+            XCTAssertEqual(error, .decodingError)
+            failed.fulfill()
+        }
+        defer { try? watcher.stop() }
+        wait(for: [failed], timeout: 5)
+    }
+
+    func testRemovingStyledViewFromSuperview() {
+        let parent = UIView()
+        let view = UIView()
+        view.style = "primary"
+        parent.addSubview(view)
+        view.removeFromSuperview()
+        XCTAssertNil(view.superview)
+    }
 
     // TODO: test custom Styleable
 
@@ -341,32 +397,8 @@ class CustomViewController: UIViewController {
     var customProperty: String = ""
 }
 
-class TraitViewController: UIViewController {
-
-    let childViewController: UIViewController
-    let traits: [UITraitCollection]
-
-    init(traits: [UITraitCollection], view: UIView) {
-        self.traits = traits
-        childViewController = UIViewController()
-        super.init(nibName: nil, bundle: nil)
-
-        self.view.addSubview(childViewController.view)
-        addChild(childViewController)
-        childViewController.willMove(toParent: self)
-        childViewController.didMove(toParent: self)
-        childViewController.view.addSubview(view)
-    }
-
-    static func addTraits(_ traits: [UITraitCollection], to view: UIView) {
-        _ = TraitViewController(traits: traits, view: view)
-    }
-
-    required init?(coder aDecoder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-
-    override func overrideTraitCollection(forChild childViewController: UIViewController) -> UITraitCollection? {
-        return UITraitCollection(traitsFrom: traits)
+private class CompactTraitView: UIView {
+    override var traitCollection: UITraitCollection {
+        return UITraitCollection(horizontalSizeClass: .compact)
     }
 }

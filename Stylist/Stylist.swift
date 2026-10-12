@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import UIKit
 import KZFileWatchers
 
 public class Stylist {
@@ -166,19 +167,23 @@ public class Stylist {
         let stylist = self
         do {
             try fileWatcher.start { result in
-                switch result {
-                case .noChanges:
-                    break
-                case let .updated(data):
-                    do {
-                        let theme = try Theme(data: data)
-                        self.themes[url.path] = theme
-                        stylist.apply(theme: theme, animateChanges: animateChanges && hasLoaded)
-                        hasLoaded = true
-                    } catch let error as ThemeError {
-                        parsingError(error)
-                    } catch {
-                        // unknown error occured
+                // Remote watchers deliver updates on a background queue.
+                DispatchQueue.main.async {
+                    switch result {
+                    case .noChanges:
+                        break
+                    case let .updated(data):
+                        do {
+                            let theme = try Theme(data: data)
+                            stylist.themes[url.path] = theme
+                            stylist.apply(theme: theme, animateChanges: animateChanges && hasLoaded)
+                            hasLoaded = true
+                        } catch let error as ThemeError {
+                            parsingError(error)
+                        } catch {
+                            print("Could not parse watched theme: \(error)")
+                            parsingError(ThemeError.decodingError)
+                        }
                     }
                 }
             }

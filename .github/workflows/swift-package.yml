@@ -1,0 +1,44 @@
+name: Swift package
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  simulator:
+    runs-on: macos-26
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify compiler and resolve dependencies
+        run: |
+          xcodebuild -version
+          swift --version
+          swift package resolve
+      - name: Test iOS package
+        run: |
+          set -eu
+          device_id=$(xcrun simctl list devices available -j | python3 -c '
+          import json, sys
+          devices = json.load(sys.stdin)["devices"]
+          phones = [d["udid"] for runtime, items in devices.items()
+                    if "iOS" in runtime for d in items if d["name"].startswith("iPhone")]
+          if not phones:
+              sys.exit("No available iPhone simulator")
+          print(phones[0])
+          ')
+          DESTINATION="platform=iOS Simulator,id=$device_id" \
+            sh Scripts/test-package.sh -resultBundlePath "$PWD/.build/StylistTests.xcresult" test
+      - name: Build tvOS package
+        run: |
+          DESTINATION='generic/platform=tvOS Simulator' \
+            sh Scripts/test-package.sh -configuration Release build
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: stylist-tests
+          path: .build/StylistTests.xcresult
+          if-no-files-found: warn

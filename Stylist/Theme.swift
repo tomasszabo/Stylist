@@ -50,9 +50,8 @@ extension Theme {
     }
 
     public init(dictionary: [String: Any]) throws {
-        var styles: [StyleSelector] = []
-        var variables: [String: Any] = dictionary["variables"] as? [String: Any] ?? [:]
-        var stylesDictionary = (dictionary["styles"] as? [String: Any]) ?? [:]
+        let variables: [String: Any] = dictionary["variables"] as? [String: Any] ?? [:]
+        let stylesDictionary = (dictionary["styles"] as? [String: Any]) ?? [:]
 
         var visitedStyles: Set<String> = []
 

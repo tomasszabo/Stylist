@@ -32,10 +32,12 @@ extension NSLayoutConstraint.Relation {
         case .equal: return "=="
         case .greaterThanOrEqual: return ">="
         case .lessThanOrEqual: return "<="
+        @unknown default:
+            preconditionFailure("Unsupported layout constraint relation")
         }
     }
 
-    static var all: [NSLayoutConstraint.Relation] = [.equal, .greaterThanOrEqual, .lessThanOrEqual]
+    static let all: [NSLayoutConstraint.Relation] = [.equal, .greaterThanOrEqual, .lessThanOrEqual]
 }
 
 extension LayoutAnchor: StyleValue {
