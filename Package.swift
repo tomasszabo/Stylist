@@ -13,7 +13,7 @@ let package = Package(
     dependencies: [
         .package(url: "https://github.com/jpsim/Yams.git", from: "6.2.2"),
         .package(url: "https://github.com/tomasszabo/KZFileWatchers.git",
-                 revision: "47c891724638bd16cb83d87ff75c62177b7b73b8"),
+                 revision: "1c16f2954e5f90bebefac30489e3a7988e10b041"),
     ],
     targets: [
         .target(

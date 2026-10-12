@@ -7,9 +7,9 @@ Stylist, Yams and KZFileWatchers. It requires **Swift tools/compiler 6.2+** and
 **iOS 15+ or tvOS 15+**. Styling APIs and watcher lifecycle operations are
 main-actor isolated. Validated with Xcode 27 / Swift 6.4.
 
-The migration is currently on `modernization/swift6`. **After that PR is merged
-into this fork's `master`**, use `branch: "master"` in the SPM installation
-example below, or pin a reviewed commit for reproducible builds. The pinned
+The migration is currently on `modernization/swift6`. The installation examples
+below use **`master` for after that PR is merged**; until then select the review
+branch to try Swift 6, or pin a reviewed commit for reproducible builds. The pinned
 KZFileWatchers revision remains valid after its own branch is merged or deleted.
 
 CocoaPods remains a separate compatibility path: Stylist uses Swift 6, but its
@@ -98,12 +98,12 @@ on iOS 15 and tvOS 15 or newer (the Swift 6 watcher's async networking floor).
 Add the repository in Xcode's **Add Package Dependencies**
 dialog and select the `Stylist` product.
 
-For the Swift 6 language-mode migration, select this branch:
+After the Swift 6 PR is merged, select this fork's `master`:
 
 ```swift
 .package(
     url: "https://github.com/tomasszabo/Stylist.git",
-    branch: "modernization/swift6"
+    branch: "master"
 )
 ```
 
@@ -112,7 +112,7 @@ the target dependencies. For reproducible application builds, commit the app's
 `Package.resolved` and use a reviewed revision or a subsequent release tag.
 The package declares Yams 6.2.2+ and pins the tested Swift 6
 [KZFileWatchers fork](https://github.com/tomasszabo/KZFileWatchers/pull/1) revision
-`47c891724638bd16cb83d87ff75c62177b7b73b8`; no checked-in Pods,
+`1c16f2954e5f90bebefac30489e3a7988e10b041`; no checked-in Pods,
 generated Xcode project, or copied third-party sources are used by SPM.
 
 #### Swift and threading compatibility
@@ -132,7 +132,9 @@ with Swift 6.4 / Xcode 27. `Stylist`, `Styleable`, associated-object keys, selec
 matching and UIKit state access are main-actor isolated. Custom property/object
 callbacks and watcher parsing-error callbacks are explicitly `@MainActor`.
 No `@unchecked Sendable`, `nonisolated(unsafe)`, or preconcurrency escape hatch
-has been added.
+has been added to Stylist. KZFileWatchers uses an immutable, thread-safe dispatch
+source cleanup owner with a narrowly scoped unchecked conformance to avoid
+older-runtime `isolated deinit` crashes.
 
 This is an actor-isolation API change: UIKit controllers can continue styling
 synchronously, but callers outside the main actor must hop to it. Construct and
@@ -155,8 +157,8 @@ lifecycle operations are main-actor isolated and update callbacks are Sendable.
 Refresh failures are logged and forwarded to the existing parsing-error callback
 as `.notFound`; malformed theme content remains `.decodingError`.
 
-The Swift 5 compatibility version remains on `master` until this branch is
-reviewed and merged. Stylist remains a UIKit library; macOS/Linux are not
+The installation examples target the post-merge `master`; the Swift 5 version
+remains there until this PR is merged. Stylist remains a UIKit library; macOS/Linux are not
 supported package targets.
 
 #### Package validation
@@ -192,17 +194,11 @@ iOS CocoaPods lint also pass with Xcode 27 / Swift 6.4. Older OS runtime executi
 has not been verified on this machine.
 
 ### Cocoapods
-Add the following to your `podfile`
-
-```sh
-pod 'Stylist'
-```
-
-For this branch's Swift 6 CocoaPods support, use:
+For this fork's Swift 6 CocoaPods support after merging into `master`, use:
 
 ```ruby
 pod 'Stylist', :git => 'https://github.com/tomasszabo/Stylist.git',
-              :branch => 'modernization/swift6'
+              :branch => 'master'
 ```
 
 The checked-in `Pods` and `Podfile.lock` are legacy example snapshots, not the
