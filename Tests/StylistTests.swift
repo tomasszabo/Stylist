@@ -373,6 +373,22 @@ class StylistTests: XCTestCase {
         wait(for: [failed], timeout: 5)
     }
 
+    #if SWIFT_PACKAGE
+    func testWatcherReportsRefreshFailureOnMainActor() throws {
+        let url = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: url, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: url) }
+        let failed = expectation(description: "Unreadable theme reported")
+        let watcher = Stylist().watch(url: url, animateChanges: false) { error in
+            XCTAssertTrue(Thread.isMainThread)
+            XCTAssertEqual(error, .notFound)
+            failed.fulfill()
+        }
+        defer { try? watcher.stop() }
+        wait(for: [failed], timeout: 5)
+    }
+    #endif
+
     func testRemovingStyledViewFromSuperview() {
         let parent = UIView()
         let view = UIView()

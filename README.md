@@ -77,8 +77,8 @@ styles:
 
 ### Swift Package Manager
 
-This branch supports Swift Package Manager with Swift tools 6.0 or newer, on iOS 13
-and tvOS 13 or newer (the Swift concurrency back-deployment floor).
+This branch supports Swift Package Manager with Swift tools/compiler 6.2 or newer,
+on iOS 15 and tvOS 15 or newer (the Swift 6 watcher's async networking floor).
 Add the repository in Xcode's **Add Package Dependencies**
 dialog and select the `Stylist` product.
 
@@ -94,7 +94,9 @@ For the Swift 6 language-mode migration, select this branch:
 In a consuming package, add `.product(name: "Stylist", package: "Stylist")` to
 the target dependencies. For reproducible application builds, commit the app's
 `Package.resolved` and use a reviewed revision or a subsequent release tag.
-The package declares Yams 6.2.2+ and KZFileWatchers 1.2.0+; no checked-in Pods,
+The package declares Yams 6.2.2+ and pins the tested Swift 6
+[KZFileWatchers fork](https://github.com/tomasszabo/KZFileWatchers/pull/1) revision
+`47c891724638bd16cb83d87ff75c62177b7b73b8`; no checked-in Pods,
 generated Xcode project, or copied third-party sources are used by SPM.
 
 #### Swift and threading compatibility
@@ -102,9 +104,9 @@ generated Xcode project, or copied third-party sources are used by SPM.
 | Setting | Value |
 |---|---|
 | Swift language mode | **Swift 6** (`swiftLanguageModes: [.v6]`) |
-| Minimum SPM tools version | Swift 6.0 |
+| Minimum SPM tools version | Swift 6.2 |
 | Validated compiler | Swift 6.4, supplied by Xcode 27 |
-| Swift 6 strict-concurrency mode | Enabled for Stylist and its package tests |
+| Swift 6 strict-concurrency mode | Enabled for Stylist, Yams, KZFileWatchers and package tests |
 
 The compiler version and language mode are separate: building with a Swift 6
 compiler does not automatically enable Swift 6 language mode.
@@ -131,10 +133,11 @@ Task { @MainActor in
 Annotate custom non-UIKit `Styleable` classes and styling helpers with
 `@MainActor`. Start and stop watchers on the main actor. Watcher updates and
 parsing errors are delivered on the main queue, including remote-file updates.
-KZFileWatchers remains an external Swift 5 dependency; this migration does not
-claim that its internal implementation is fully Swift 6 concurrency-safe or
-support concurrent watcher lifecycle calls. Dependencies retain their own
-language modes; do not globally force `SWIFT_VERSION=6` on them.
+The SPM graph now uses **Swift 6 language mode throughout**: Stylist, Yams
+(via its versioned Swift 6 manifest), and the KZFileWatchers fork. Watcher
+lifecycle operations are main-actor isolated and update callbacks are Sendable.
+Refresh failures are logged and forwarded to the existing parsing-error callback
+as `.notFound`; malformed theme content remains `.decodingError`.
 
 The Swift 5 compatibility version remains on `master` until this branch is
 reviewed and merged. Stylist remains a UIKit library; macOS/Linux are not
@@ -159,10 +162,16 @@ errors/main-thread callbacks, and removal of styled views. No signing or
 production services are needed. CocoaPods support remains available with Swift 6
 language mode on this branch and the same iOS/tvOS 13 floor; its dependency
 resolution is separate.
-SPM uses the current Git releases (Yams 6.2.2 and KZFileWatchers 1.2.0); CocoaPods
-uses the latest published pod lines (Yams 5.0.6 and KZFileWatchers 1.1.0).
-All 42 iOS simulator tests pass, including main-actor custom styling and a
-background-task hop to the main actor. iOS/tvOS Release package builds and unsigned
+SPM uses Yams 6.2.2's Swift 6 manifest and the pinned Swift 6 KZFileWatchers fork.
+CocoaPods is a **compatibility installation path**, using published Yams 5.0.6
+and KZFileWatchers 1.1.0 in their original language modes. It does not have an
+all-Swift-6 dependency graph or the new watcher failure reporting; choose SPM for
+the fully migrated graph. The conditional failure case in Stylist preserves
+compatibility with that older CocoaPods watcher API.
+All 43 iOS simulator tests pass, including main-actor custom styling, a
+background-task hop to the main actor, and watcher refresh-failure reporting.
+Compiler commands confirm Swift language mode 6 for Stylist, Yams and
+KZFileWatchers individually. iOS/tvOS Release package builds and unsigned
 iOS CocoaPods lint also pass with Xcode 27 / Swift 6.4. Older OS runtime execution
 has not been verified on this machine.
 
