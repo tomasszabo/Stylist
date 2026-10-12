@@ -1,5 +1,21 @@
 #  Stylist 🎨
 
+## Swift 6 support
+
+This fork's SPM package uses **Swift 6 language mode throughout**, including
+Stylist, Yams and KZFileWatchers. It requires **Swift tools/compiler 6.2+** and
+**iOS 15+ or tvOS 15+**. Styling APIs and watcher lifecycle operations are
+main-actor isolated. Validated with Xcode 27 / Swift 6.4.
+
+The migration is currently on `modernization/swift6`. **After that PR is merged
+into this fork's `master`**, use `branch: "master"` in the SPM installation
+example below, or pin a reviewed commit for reproducible builds. The pinned
+KZFileWatchers revision remains valid after its own branch is merged or deleted.
+
+CocoaPods remains a separate compatibility path: Stylist uses Swift 6, but its
+published dependencies still use older language modes. Use **SPM** for the fully
+Swift 6 graph. See [Installing](#installing) for details and migration guidance.
+
 [![Build Status](https://img.shields.io/circleci/project/github/yonaskolb/Stylist.svg?style=for-the-badge)](https://circleci.com/gh/yonaskolb/Stylist)
 ![Platforms](https://img.shields.io/cocoapods/p/Stylist.svg?style=for-the-badge)
 [![Carthage compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=for-the-badge)](https://github.com/Carthage/Carthage) [![CocoaPods version](https://img.shields.io/cocoapods/v/Stylist.svg?style=for-the-badge)](https://cocoapods.org/pods/Stylist)
