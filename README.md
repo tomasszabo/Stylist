@@ -81,13 +81,12 @@ This fork supports Swift Package Manager with Swift tools 5.9 or newer, on iOS 1
 and tvOS 12 or newer. Add the repository in Xcode's **Add Package Dependencies**
 dialog and select the `Stylist` product.
 
-While the modernization pull request is being reviewed, select the
-`modernization/swift-package-manager` branch:
+SPM support is available on this fork's `master` branch:
 
 ```swift
 .package(
     url: "https://github.com/tomasszabo/Stylist.git",
-    branch: "modernization/swift-package-manager"
+    branch: "master"
 )
 ```
 
@@ -141,11 +140,11 @@ Add the following to your `podfile`
 pod 'Stylist'
 ```
 
-For this fork's unreleased changes, use:
+For this fork's modernized CocoaPods support, use:
 
 ```ruby
 pod 'Stylist', :git => 'https://github.com/tomasszabo/Stylist.git',
-              :branch => 'modernization/swift-package-manager'
+              :branch => 'master'
 ```
 
 The checked-in `Pods` and `Podfile.lock` are legacy example snapshots, not the
