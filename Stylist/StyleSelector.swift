@@ -33,7 +33,7 @@ public class StyleSelector: Equatable, CustomStringConvertible {
             && lhs.style == rhs.style
     }
 
-    func applies(to styleable: Styleable) -> Bool {
+    @MainActor func applies(to styleable: Styleable) -> Bool {
         var components = self.components
         if let component = components.popLast() {
             if matches(component: component, to: styleable) {
@@ -49,7 +49,7 @@ public class StyleSelector: Equatable, CustomStringConvertible {
         return false
     }
 
-    private func matches(component: SelectorComponent, to styleable: Styleable) -> Bool {
+    @MainActor private func matches(component: SelectorComponent, to styleable: Styleable) -> Bool {
         if let classType = component.classType,
             let object = styleable as? NSObject,
             !(object.isKind(of: classType)) {
@@ -61,7 +61,7 @@ public class StyleSelector: Equatable, CustomStringConvertible {
         return true
     }
 
-    private func matches(components: [SelectorComponent], to styleable: Styleable) -> Bool {
+    @MainActor private func matches(components: [SelectorComponent], to styleable: Styleable) -> Bool {
         var components = components
         if let component = components.popLast() {
             if let parent = getParent(styleable: styleable, component: component) {
@@ -74,7 +74,7 @@ public class StyleSelector: Equatable, CustomStringConvertible {
         }
     }
 
-    private func getParent(styleable: Styleable, component: SelectorComponent) -> Styleable? {
+    @MainActor private func getParent(styleable: Styleable, component: SelectorComponent) -> Styleable? {
 
         if let viewController = styleable as? UIViewController {
             if let parent = viewController.parent {

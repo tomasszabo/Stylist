@@ -12,14 +12,15 @@ import UIKit
 import XCTest
 import Yams
 
+@MainActor
 class StylistTests: XCTestCase {
 
     // to get around cross platform tests
     fileprivate let customViewClassName = NSStringFromClass(CustomView.self)
     fileprivate let customViewControllerClassName = NSStringFromClass(CustomViewController.self)
 
-    override func setUp() {
-        super.setUp()
+    override func setUp() async throws {
+        try await super.setUp()
         Stylist.shared.clear()
     }
 
@@ -381,7 +382,34 @@ class StylistTests: XCTestCase {
         XCTAssertNil(view.superview)
     }
 
-    // TODO: test custom Styleable
+    func testStylingFromBackgroundTaskHopsToMainActor() async throws {
+        let styled = try await Task.detached {
+            try await MainActor.run {
+                let stylist = Stylist()
+                let theme = try Theme(string: "styles: { primary: { backgroundColor: blue } }")
+                stylist.addTheme(theme, name: "main")
+                let view = UIView()
+                view.styles = ["primary"]
+                stylist.style(view)
+                return Thread.isMainThread && view.backgroundColor == .blue
+            }
+        }.value
+        XCTAssertTrue(styled)
+    }
+
+    func testCustomStyleableAndPropertyAreMainActorIsolated() throws {
+        let target = CustomStyleable()
+        target.styles = ["custom"]
+        let property = StyleProperty(name: "text") { (target: CustomStyleable, value: PropertyValue<String>) in
+            XCTAssertTrue(Thread.isMainThread)
+            target.text = value.value
+        }
+        let stylist = Stylist()
+        stylist.addProperty(property)
+        stylist.addTheme(try Theme(string: "styles: { custom: { text: hello } }"), name: "main")
+        stylist.style(target)
+        XCTAssertEqual(target.text, "hello")
+    }
 
     // TODO: test UIBarItem
 
@@ -401,4 +429,11 @@ private class CompactTraitView: UIView {
     override var traitCollection: UITraitCollection {
         return UITraitCollection(horizontalSizeClass: .compact)
     }
+
+}
+
+@MainActor
+private final class CustomStyleable: Styleable {
+    var styles: [String] = []
+    var text = ""
 }

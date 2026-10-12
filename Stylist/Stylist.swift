@@ -10,6 +10,7 @@ import Foundation
 import UIKit
 import KZFileWatchers
 
+@MainActor
 public class Stylist {
 
     public static let shared = Stylist()
@@ -155,7 +156,7 @@ public class Stylist {
     /// - Returns: The file watcher, which can later be stopped
     /// - Throws: An error is thrown if the file couldn't be watched
     @discardableResult
-    public func watch(url: URL, animateChanges: Bool = true, parsingError: @escaping (ThemeError) -> Void) -> FileWatcherProtocol {
+    public func watch(url: URL, animateChanges: Bool = true, parsingError: @escaping @MainActor (ThemeError) -> Void) -> FileWatcherProtocol {
         let fileWatcher: FileWatcherProtocol
         if url.isFileURL {
             fileWatcher = FileWatcher.Local(path: url.path)

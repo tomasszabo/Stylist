@@ -11,6 +11,7 @@ import XCTest
 import UIKit
 @testable import Stylist
 
+@MainActor
 class ViewPropertiesTests: XCTestCase {
 
     func testViewProperty<T: Equatable>(property: String, value: Any, file: StaticString = #file, line: UInt = #line, _ keyPath: WritableKeyPath<UIView, T>, expectedValue: T) {

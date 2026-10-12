@@ -16,6 +16,7 @@ import Cocoa
 public typealias View = NSView
 #endif
 
+@MainActor
 public protocol Styleable: AnyObject {
     var styles: [String] { get set }
 }
@@ -38,7 +39,7 @@ extension Styleable {
 
 extension UIView: Styleable {
 
-    struct AssociatedKeys {
+    @MainActor struct AssociatedKeys {
         static var Styles: UInt8 = 0
     }
 
@@ -67,7 +68,7 @@ extension UIView: Styleable {
 
 extension UIViewController: Styleable {
 
-    struct AssociatedKeys {
+    @MainActor struct AssociatedKeys {
         static var Styles: UInt8 = 0
     }
 
@@ -96,7 +97,7 @@ extension UIViewController: Styleable {
 
 extension UIBarItem: Styleable {
 
-    struct AssociatedKeys {
+    @MainActor struct AssociatedKeys {
         static var Styles: UInt8 = 0
     }
 

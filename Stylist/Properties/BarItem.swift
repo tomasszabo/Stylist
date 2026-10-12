@@ -15,7 +15,7 @@ extension UIBarItem {
 
         var properties: [StyleProperty] = []
 
-        func add<ViewType, PropertyType>(_ name: String, _ style: @escaping (ViewType, PropertyValue<PropertyType>) -> Void) {
+        func add<ViewType, PropertyType>(_ name: String, _ style: @escaping @MainActor (ViewType, PropertyValue<PropertyType>) -> Void) {
             properties.append(StyleProperty(name: name, style: style))
         }
 

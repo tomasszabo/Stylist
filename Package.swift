@@ -1,11 +1,11 @@
-// swift-tools-version: 5.9
+// swift-tools-version: 6.0
 import PackageDescription
 
 let package = Package(
     name: "Stylist",
     platforms: [
-        .iOS(.v12),
-        .tvOS(.v12),
+        .iOS(.v13),
+        .tvOS(.v13),
     ],
     products: [
         .library(name: "Stylist", targets: ["Stylist"]),
@@ -31,5 +31,5 @@ let package = Package(
             exclude: ["LinuxMain.swift", "Info.plist"]
         ),
     ],
-    swiftLanguageVersions: [.v5]
+    swiftLanguageModes: [.v6]
 )
