@@ -7,10 +7,9 @@ Stylist, Yams and KZFileWatchers. It requires **Swift tools/compiler 6.2+** and
 **iOS 15+ or tvOS 15+**. Styling APIs and watcher lifecycle operations are
 main-actor isolated. Validated with Xcode 27 / Swift 6.4.
 
-The migration is currently on `modernization/swift6`. The installation examples
-below use **`master` for after that PR is merged**; until then select the review
-branch to try Swift 6, or pin a reviewed commit for reproducible builds. The pinned
-KZFileWatchers revision remains valid after its own branch is merged or deleted.
+Swift 6 support is available on **`master`**. Install from this fork directly,
+or pin a reviewed commit for reproducible builds. The KZFileWatchers dependency
+is pinned to a tested Swift 6 revision.
 
 CocoaPods remains a separate compatibility path: Stylist uses Swift 6, but its
 published dependencies still use older language modes. Use **SPM** for the fully
@@ -93,12 +92,12 @@ styles:
 
 ### Swift Package Manager
 
-This branch supports Swift Package Manager with Swift tools/compiler 6.2 or newer,
+This fork supports Swift Package Manager with Swift tools/compiler 6.2 or newer,
 on iOS 15 and tvOS 15 or newer (the Swift 6 watcher's async networking floor).
 Add the repository in Xcode's **Add Package Dependencies**
 dialog and select the `Stylist` product.
 
-After the Swift 6 PR is merged, select this fork's `master`:
+Select this fork's `master`:
 
 ```swift
 .package(
@@ -157,8 +156,7 @@ lifecycle operations are main-actor isolated and update callbacks are Sendable.
 Refresh failures are logged and forwarded to the existing parsing-error callback
 as `.notFound`; malformed theme content remains `.decodingError`.
 
-The installation examples target the post-merge `master`; the Swift 5 version
-remains there until this PR is merged. Stylist remains a UIKit library; macOS/Linux are not
+Stylist remains a UIKit library; macOS/Linux are not
 supported package targets.
 
 #### Package validation
@@ -178,7 +176,7 @@ Xcode accidentally selecting the legacy project. Tests exercise theme parsing,
 variables, inheritance, selectors, UIKit properties, file loading, hot reload
 errors/main-thread callbacks, and removal of styled views. No signing or
 production services are needed. CocoaPods support remains available with Swift 6
-language mode on this branch and the same iOS/tvOS 13 floor; its dependency
+language mode and the iOS/tvOS 13 compatibility floor; its dependency
 resolution is separate.
 SPM uses Yams 6.2.2's Swift 6 manifest and the pinned Swift 6 KZFileWatchers fork.
 CocoaPods is a **compatibility installation path**, using published Yams 5.0.6
@@ -194,7 +192,7 @@ iOS CocoaPods lint also pass with Xcode 27 / Swift 6.4. Older OS runtime executi
 has not been verified on this machine.
 
 ### Cocoapods
-For this fork's Swift 6 CocoaPods support after merging into `master`, use:
+For this fork's Swift 6 CocoaPods support, use:
 
 ```ruby
 pod 'Stylist', :git => 'https://github.com/tomasszabo/Stylist.git',
@@ -202,7 +200,7 @@ pod 'Stylist', :git => 'https://github.com/tomasszabo/Stylist.git',
 ```
 
 The checked-in `Pods` and `Podfile.lock` are legacy example snapshots, not the
-modernization dependency graph. Run `pod install` before building the legacy
+current dependency graph. Run `pod install` before building the legacy
 example workspace; SPM does not use these snapshots.
 
 ### Carthage
