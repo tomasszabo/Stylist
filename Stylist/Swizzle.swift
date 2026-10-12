@@ -32,7 +32,7 @@ extension UIView {
         method_exchangeImplementations(originalMethod!, swizzledMethod!)
     }
 
-    @objc func stylist_willMove(toSuperview: UIView) {
+    @objc func stylist_willMove(toSuperview: UIView?) {
         stylist_willMove(toSuperview: toSuperview)
         Stylist.shared.style(self)
     }

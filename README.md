@@ -75,6 +75,65 @@ styles:
 
 ## ⬇️ Installing
 
+### Swift Package Manager
+
+This fork supports Swift Package Manager with Swift tools 5.9 or newer, on iOS 12
+and tvOS 12 or newer. Add the repository in Xcode's **Add Package Dependencies**
+dialog and select the `Stylist` product.
+
+While the modernization pull request is being reviewed, select the
+`modernization/swift-package-manager` branch:
+
+```swift
+.package(
+    url: "https://github.com/tomasszabo/Stylist.git",
+    branch: "modernization/swift-package-manager"
+)
+```
+
+In a consuming package, add `.product(name: "Stylist", package: "Stylist")` to
+the target dependencies. For reproducible application builds, commit the app's
+`Package.resolved` and use a reviewed revision or a subsequent release tag.
+The package declares Yams 6.2.2+ and KZFileWatchers 1.2.0+; no checked-in Pods,
+generated Xcode project, or copied third-party sources are used by SPM.
+
+#### Swift and threading compatibility
+
+The package builds with the Swift 6 compiler (validated with Swift 6.4 / Xcode
+27), using **Swift 5 language mode** to preserve the synchronous styling and
+custom-property APIs. This is not a claim of Swift 6 strict-concurrency safety:
+the singleton, associated properties and style callbacks contain mutable UIKit
+state, and KZFileWatchers is also a Swift 5 dependency. A future Swift 6 language
+mode migration needs a coordinated main-actor API change, rather than marking
+these values `@unchecked Sendable`.
+
+Call styling, singleton configuration and `watch`/watcher `stop` from the main
+thread. Watcher updates and parsing errors are delivered on the main queue,
+including remote-file updates. The public styling APIs and automatic UIKit
+styling remain unchanged. Stylist remains a UIKit library; macOS/Linux are not
+supported package targets.
+
+#### Package validation
+
+On a Mac with Xcode and an installed iPhone simulator:
+
+```sh
+swift package resolve
+sh Scripts/test-package.sh test
+DESTINATION='generic/platform=tvOS Simulator' \
+    sh Scripts/test-package.sh -configuration Release build
+```
+
+Override `DESTINATION` if the default `iPhone 17 Pro` simulator is unavailable.
+The script validates the package from an ignored symlink workspace, avoiding
+Xcode accidentally selecting the legacy project. Tests exercise theme parsing,
+variables, inheritance, selectors, UIKit properties, file loading, hot reload
+errors/main-thread callbacks, and removal of styled views. No signing or
+production services are needed. CocoaPods support remains available with Swift 5
+language mode and the same iOS/tvOS 12 floor; its dependency resolution is separate.
+SPM uses the current Git releases (Yams 6.2.2 and KZFileWatchers 1.2.0); CocoaPods
+uses the latest published pod lines (Yams 5.0.6 and KZFileWatchers 1.1.0).
+
 ### Cocoapods
 Add the following to your `podfile`
 

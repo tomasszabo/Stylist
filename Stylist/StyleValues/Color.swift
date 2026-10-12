@@ -79,9 +79,9 @@ extension Color {
         var alpha: Float = 1.0
         if hex.count == 8 {
             let alphaHex = hex[hex.index(hex.startIndex, offsetBy: 6) ..< hex.index(hex.startIndex, offsetBy: 8)]
-            var alphaInt: CUnsignedInt = 0
+            var alphaInt: UInt64 = 0
 
-            Scanner(string: String(alphaHex)).scanHexInt32(&alphaInt)
+            Scanner(string: String(alphaHex)).scanHexInt64(&alphaInt)
             alpha = Float(alphaInt) / 255.0
             hex = String(hex[..<hex.index(hex.startIndex, offsetBy: 6)])
         }
@@ -118,13 +118,13 @@ extension Color {
             let greenHex = String(hex[hex.index(hex.startIndex, offsetBy: 2) ..< hex.index(hex.startIndex, offsetBy: 4)])
             let blueHex = String(hex[hex.index(hex.startIndex, offsetBy: 4) ..< hex.index(hex.startIndex, offsetBy: 6)])
 
-            var redInt: CUnsignedInt = 0
-            var greenInt: CUnsignedInt = 0
-            var blueInt: CUnsignedInt = 0
+            var redInt: UInt64 = 0
+            var greenInt: UInt64 = 0
+            var blueInt: UInt64 = 0
 
-            Scanner(string: redHex).scanHexInt32(&redInt)
-            Scanner(string: greenHex).scanHexInt32(&greenInt)
-            Scanner(string: blueHex).scanHexInt32(&blueInt)
+            Scanner(string: redHex).scanHexInt64(&redInt)
+            Scanner(string: greenHex).scanHexInt64(&greenInt)
+            Scanner(string: blueHex).scanHexInt64(&blueInt)
 
             self.init(red: CGFloat(redInt) / 255.0, green: CGFloat(greenInt) / 255.0, blue: CGFloat(blueInt) / 255.0, alpha: CGFloat(alpha))
         } else {

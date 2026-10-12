@@ -8,6 +8,7 @@
 
 import Foundation
 import XCTest
+import UIKit
 @testable import Stylist
 
 class ViewPropertiesTests: XCTestCase {

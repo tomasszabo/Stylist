@@ -7,6 +7,7 @@
 //
 
 import XCTest
+import UIKit
 @testable import Stylist
 import Yams
 
